@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-func TestTARC(t *testing.T) {
-	c := TARC{Duration: time.Second / 2}
+func TestRing(t *testing.T) {
+	c := Ring{Duration: time.Second / 2}
 	lo := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i"}
 	hi := []string{"A", "B", "C", "D", "E", "F", "G", "H", "I"}
 	i := 0
@@ -30,8 +30,8 @@ func TestTARC(t *testing.T) {
 		t.Fatal("time: stale entry in cache")
 	}
 }
-func BenchmarkTARC(b *testing.B) {
-	c := TARC{Duration: time.Second / 2}
+func BenchmarkRing(b *testing.B) {
+	c := Ring{Duration: time.Second / 2}
 	lo := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i"}
 	hi := []string{"A", "B", "C", "D", "E", "F", "G", "H", "I"}
 	i := 0

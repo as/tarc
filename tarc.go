@@ -5,26 +5,24 @@ import (
 	"time"
 )
 
-type cacheLinePad = [64]byte
+const (
+	nent = 16 // MUST be a power of 2
+	mask = nent - 1
+	cacheLinePad = 64
+)
 
-type Entry struct {
-	key, value string
-	time.Duration
-}
-
-type TARC struct {
+type Ring struct {
 	x uint32
-	c [8]Entry
+	c [nent]entry
 	time.Duration
-	_ cacheLinePad
+	_ [cacheLinePad]byte
 }
 
-func (c *TARC) Put(key, value string) {
-	c.c[atomic.AddUint32(&c.x, 1)&7] = Entry{key, value, time.Duration(time.Now().UnixNano())}
+func (c *Ring) Put(key, value string) {
+	c.c[atomic.AddUint32(&c.x, 1)&mask] = entry{key, value, time.Duration(time.Now().UnixNano())}
 }
 
-func (c *TARC) Get(key string) (value string, ok bool) {
-	mask := uint32(len(c.c) - 1)
+func (c *Ring) Get(key string) (value string, ok bool) {
 	i := atomic.LoadUint32(&c.x) & mask
 	si := i
 	ei := (si + 1) & mask
@@ -40,4 +38,9 @@ func (c *TARC) Get(key string) (value string, ok bool) {
 		si = (si - 1) & mask
 	}
 	return "", false
+}
+
+type entry struct {
+	key, value string
+	time.Duration
 }
